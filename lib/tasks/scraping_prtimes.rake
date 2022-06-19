@@ -49,26 +49,31 @@ namespace :scraping_prtimes do
     end
 
     i = 0
-    article_links.each do |link|
-      sleep(rand(1..3))
-      driver.get(link) ## 各記事に遷移
-      sleep(rand(1..3))
+    today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
+    file = File.new("/Users/aoikatto/Desktop/prtimes-scrapng #{today}.txt","w")
+    begin
+      article_links.each do |link|
+        sleep(rand(1..3))
+        driver.get(link) ## 各記事に遷移
+        sleep(rand(1..3))
 
-      begin
-        today = Date.today.strftime("%Y-%m-%d %H:%M:%S")
-        file = File.new("prtimes-scrapng #{today}.txt","w")
-        target_element_text = driver.find_element(:id, 'media-only-information').text
-        convert_elements = target_element_text.split("\n").reject(&:blank?) ## 配列形式に直す
-        file.puts(convert_elements)
-        file.puts('')
-      rescue => exception
+        begin
+          target_element_text = driver.find_element(:id, 'media-only-information').text
+          convert_elements = target_element_text.split("\n").reject(&:blank?) ## 配列形式に直す
+          file.puts(convert_elements)
+          file.puts(article_links[i]) ## url
+          file.puts('--------------------------------------------')
+          file.puts('')
+        rescue => exception
+          i += 1
+          next
+        end
         i += 1
-        next
-      ensure
-        file.close
       end
-
-      i += 1
+    rescue => exception
+      puts exception
+    ensure
+      file.close
     end
   end
 end
