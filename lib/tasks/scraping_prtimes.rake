@@ -55,48 +55,17 @@ namespace :scraping_prtimes do
       sleep(rand(1..3))
 
       begin
+        today = Date.today.strftime("%Y-%m-%d %H:%M:%S")
+        file = File.new("prtimes-scrapng #{today}.txt","w")
         target_element_text = driver.find_element(:id, 'media-only-information').text
         convert_elements = target_element_text.split("\n").reject(&:blank?) ## 配列形式に直す
-        # convert_elements.each do |e|
-        #   ## 社名 電話番号 メールアドレス 担当者名
-        #   next if ['【', '['].find{|c| e.include?(c)} ## [で始まる文字列は飛ばす
-        #   company = Company.new
-        #   ## 会社名チェック
-        #   if ["会社", "inc.", "(株)", "会社名", "法人"].find{|c| e.include?(c)}
-        #     company.company_name = e
-        #     puts '会社名→' + e
-        #   end
-
-        #   ## 住所チェック
-        #   if Company::PREFECTURES.find{|c| e.include?(c)}
-        #     company.address = e
-        #     puts '住所→' + e
-        #   end
-
-        #   ## 電話番号チェック
-        #   if e.start_with?('TEL:')
-        #     company.tel = e
-        #     puts '電話番号→' + e
-        #   end
-
-        #   ## emailチェック
-        #   if e.start_with?('E-mail')
-        #     company.email = e
-        #     puts 'メール→' + e
-        #   end
-
-        #   ## urlチェック
-        #   if ['URL', '公式サイト'].find{|c| e.include?(c)}
-        #     company.url = e
-        #     puts '公式サイト→' + e
-        #   end
-        #   ## どれにも当てはまらない
-        # end
-        puts convert_elements
-        puts ''
+        file.puts(convert_elements)
+        file.puts('')
       rescue => exception
         i += 1
         next
+      ensure
+        file.close
       end
 
       i += 1
