@@ -57,14 +57,21 @@ namespace :scraping_prtimes do
       sleep(rand(1..3))
       driver.get(link) ## 各記事に遷移
       sleep(rand(1..3))
-
-      target_element_text = driver.find_element(:id, 'media-only-information').text
-      convert_elements = target_element_text.split("\n").compact_blank ## 配列形式に直す
+      target_element_text = ''
+      convert_elements = []
+      begin
+        target_element_text = driver.find_element(:id, 'media-only-information').text
+        convert_elements = target_element_text.split("\n").compact_blank ## 配列形式に直す
+      rescue => exception
+        p exception
+        p link
+        i += 1
+        next
+      end
       if convert_elements.size < 1
         next
       end
       company = Company.new(pritimes_url: link)
-      # 右上から取れる系
       ## 会社名
       company.company_name = driver.find_element(:xpath, '//*[@id="sidebar"]/aside[1]/div[1]').text
       right_content_list = driver.find_elements(:xpath, '//*[@id="containerInformationCompany"]/li')
@@ -76,19 +83,17 @@ namespace :scraping_prtimes do
           break
         end
       end
-      p 'elements', convert_elements
       convert_elements.each do |element|
         if element.include?('【') ## 【が入ってるのはいらない
           next
         end
-        # 取れない
         ## メールアドレス
-        email = Company::check_email(element)
-        if email
-          company.email = email
-          p 'メアド', email
-          next
-        end
+        # email = Company::check_email(element)
+        # if email
+        #   company.email = email
+        #   p 'メアド', email
+        #   next
+        # end
         ## 担当者
         # name = Company::check_charge_employee(element)
         # if name
@@ -96,12 +101,13 @@ namespace :scraping_prtimes do
         #   next
         # end
       end
+      ## 備考を作って全部ぶち込む
       data_contents << company
       i += 1
     end
 
     CSV.open("prtimes-scrapng #{today}.csv","w", :encoding => "utf-8") do |csv|
-      csv << ["会社名", "担当者", "電話番号", "メールアドレス", "prtimesのURL"]
+      csv << ["会社名", "担当者", "電話番号", "メールアドレス", "prtimesのURL"] ## todo: 備考欄を作る
       data_contents.each do |company|
         csv << [
           company.company_name,
@@ -113,5 +119,6 @@ namespace :scraping_prtimes do
       end
       p csv
     end
+    p '終わり'
   end
 end
