@@ -19,6 +19,7 @@ ActiveRecord::Schema.define(version: 2022_06_12_092219) do
     t.string "address", limit: 190, default: ""
     t.string "company_site", limit: 190, default: ""
     t.string "pritimes_url", limit: 190, default: ""
+    t.string "charge_employee", limit: 190, default: ""
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

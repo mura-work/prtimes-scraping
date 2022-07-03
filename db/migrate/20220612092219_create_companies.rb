@@ -8,6 +8,7 @@ class CreateCompanies < ActiveRecord::Migration[6.1]
       t.string :address, :default => "", :limit => 190
       t.string :company_site, :default => "", :limit => 190
       t.string :pritimes_url, :default => "", :limit => 190
+      t.string :charge_employee, :default => "", :limit => 190
       t.timestamps
     end
   end

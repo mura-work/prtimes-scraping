@@ -1,4 +1,6 @@
 class Company < ApplicationRecord
+  VALID_PHONE_NUMBER_REGEX = /\A0(\d{1}[-(]?\d{4}|\d{2}[-(]?\d{3}|\d{3}[-(]?\d{2}|\d{4}[-(]?\d{1})[-)]?\d{4}\z|\A0[5789]0[-]?\d{4}[-]?\d{4}\z/
+  VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   PREFECTURES = ["北海道",
     "青森県",
     "岩手県",
@@ -46,5 +48,16 @@ class Company < ApplicationRecord
     "宮崎県",
     "鹿児島県",
     "沖縄県"]
+
+  def check_charge_employee(target)
+    if target.includes('担当')
+      return nil
+    end
+  end
+
+  def check_email(target)
+    
+    element.match(Company::VALID_EMAIL_REGEX)
+  end
 end
 

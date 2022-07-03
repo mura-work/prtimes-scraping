@@ -4,7 +4,7 @@ require 'selenium-webdriver'
 
 namespace :scraping_prtimes do
   desc 'prtimesのスクレイピング'
-  task scraping: :environment do
+  task text: :environment do
     driver = Selenium::WebDriver.for :chrome
     PR_TIMES_URL = 'https://prtimes.jp'
     PR_TIMES_LOGIN_URL = 'https://prtimes.jp/main/html/medialogin'
@@ -33,7 +33,7 @@ namespace :scraping_prtimes do
 
     ## 取得するデータ件数を代入
     get_count = 80 ## 取得件数
-    click_more_button_count = get_count / 40 - 1 ## もっと見るボタンを押す回数
+    click_more_button_count = get_count / 40 ## もっと見るボタンを押す回数
 
     ## もっと見るボタンを押してリンクを取得
     j = 0
@@ -44,13 +44,14 @@ namespace :scraping_prtimes do
       target_elements.each do |e|
         article_links.push(e.attribute('href'))
       end
-      j += 1
+      j += 40
       sleep(rand(1..3))
     end
 
     i = 0
     today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
-    file = File.new("/Users/aoikatto/Desktop/prtimes-scrapng #{today}.txt","w")
+    # file = File.new("/Users/aoikatto/Desktop/prtimes-scrapng #{today}.txt","w")
+    file = File.new("prtimes-scrapng #{today}.txt","w")
     begin
       article_links.each do |link|
         sleep(rand(1..3))
