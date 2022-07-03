@@ -87,19 +87,18 @@ namespace :scraping_prtimes do
         if element.include?('【') ## 【が入ってるのはいらない
           next
         end
-        ## メールアドレス
-        # email = Company::check_email(element)
-        # if email
-        #   company.email = email
-        #   p 'メアド', email
-        #   next
-        # end
+        # メールアドレス
+        email = Company::check_email(element)
+        if email
+          company.email = email
+          next
+        end
         ## 担当者
-        # name = Company::check_charge_employee(element)
-        # if name
-        #   company.charge_employee = name
-        #   next
-        # end
+        charge_employee = Company::check_charge_employee(element)
+        if charge_employee
+          company.charge_employee = charge_employee
+          next
+        end
       end
       ## 備考を作って全部ぶち込む
       data_contents << company
