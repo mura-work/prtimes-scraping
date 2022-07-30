@@ -32,7 +32,7 @@ namespace :scraping_prtimes do
 
 
     ## 取得するデータ件数を代入
-    get_count = 80 ## 取得件数
+    get_count = 200 ## 取得件数
     click_more_button_count = get_count / 40 ## もっと見るボタンを押す回数
 
     ## もっと見るボタンを押してリンクを取得
@@ -50,7 +50,6 @@ namespace :scraping_prtimes do
 
     i = 0
     today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
-    # file = File.new("/Users/aoikatto/Desktop/prtimes-scrapng #{today}.txt","w")
 
     data_contents = []
     article_links.each do |link|
@@ -105,6 +104,7 @@ namespace :scraping_prtimes do
       i += 1
     end
 
+    # file = File.new("/Users/aoikatto/Desktop/prtimes-scrapng #{today}.txt","w")
     CSV.open("prtimes-scrapng #{today}.csv","w", :encoding => "utf-8") do |csv|
       csv << ["会社名", "担当者", "電話番号", "メールアドレス", "prtimesのURL"] ## todo: 備考欄を作る
       data_contents.each do |company|

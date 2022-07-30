@@ -25,12 +25,15 @@ class Company < ApplicationRecord
     "Mail address：",
     "e-mail:",
     "メールアドレス：",
+    "E-Mail ：",
+    "Mail：",
   ]
   VALID_CHARGE_EMPLOYEE_TARGET= [
     "担当：",
     "担当者名：",
     "担当者：",
-    "広報",
+    "広報：",
+    "広報 ",
     "担　当：",
     "担当者",
     "担当",
