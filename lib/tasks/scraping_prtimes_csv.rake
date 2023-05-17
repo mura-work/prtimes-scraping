@@ -32,7 +32,7 @@ namespace :scraping_prtimes do
 
 
     ## 取得するデータ件数を代入
-    get_count = 200 ## 取得件数
+    get_count = 40 ## 取得件数
     click_more_button_count = get_count / 40 ## もっと見るボタンを押す回数
 
     ## もっと見るボタンを押してリンクを取得
@@ -51,63 +51,56 @@ namespace :scraping_prtimes do
     i = 0
     today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
 
-    data_contents = []
-    article_links.each do |link|
-      sleep(rand(1..3))
-      driver.get(link) ## 各記事に遷移
-      sleep(rand(1..3))
-      target_element_text = ''
-      convert_elements = []
-      begin
-        target_element_text = driver.find_element(:id, 'media-only-information').text
-        convert_elements = target_element_text.split("\n").compact_blank ## 配列形式に直す
-      rescue => exception
-        p exception
-        p link
-        i += 1
-        next
-      end
-      if convert_elements.size < 1
-        next
-      end
-      company = Company.new(pritimes_url: link)
-      ## 会社名
-      company.company_name = driver.find_element(:xpath, '//*[@id="sidebar"]/aside[1]/div[1]').text
-      right_content_list = driver.find_elements(:xpath, '//*[@id="containerInformationCompany"]/li')
-      right_content_list.each do |content|
-        ## 電話番号
-        text = content.find_elements(:tag_name, 'span')[1].text
-        if text.match(Company::VALID_PHONE_NUMBER_REGEX)
-          company.tel = text
-          break
-        end
-      end
-      convert_elements.each do |element|
-        if element.include?('【') ## 【が入ってるのはいらない
-          next
-        end
-        # メールアドレス
-        email = Company::check_email(element)
-        if email
-          company.email = email
-          next
-        end
-        ## 担当者
-        charge_employee = Company::check_charge_employee(element)
-        if charge_employee
-          company.charge_employee = charge_employee
-          next
-        end
-      end
-      ## 備考を作って全部ぶち込む
-      data_contents << company
-      i += 1
-    end
-
-    # file = File.new("/Users/aoikatto/Desktop/prtimes-scrapng #{today}.txt","w")
     CSV.open("prtimes-scrapng #{today}.csv","w", :encoding => "utf-8") do |csv|
-      csv << ["会社名", "担当者", "電話番号", "メールアドレス", "prtimesのURL"] ## todo: 備考欄を作る
-      data_contents.each do |company|
+      csv << ["会社名", "担当者", "電話番号", "メールアドレス", "prtimesのURL"]
+      article_links.each do |link|
+        sleep(rand(1..3))
+        driver.get(link) ## 各記事に遷移
+        sleep(rand(1..3))
+        target_element_text = ''
+        convert_elements = []
+        begin
+          target_element_text = driver.find_element(:id, 'media-only-information').text
+          convert_elements = target_element_text.split("\n").compact_blank ## 配列形式に直す
+        rescue => exception
+          p exception
+          p link
+          i += 1
+          next
+        end
+        if convert_elements.size < 1
+          next
+        end
+        company = Company.new(pritimes_url: link)
+        ## 会社名
+        company.company_name = driver.find_element(:xpath, '//*[@id="sidebar"]/aside[1]/div[1]').text
+        right_content_list = driver.find_elements(:xpath, '//*[@id="containerInformationCompany"]/li')
+        right_content_list.each do |content|
+          ## 電話番号
+          text = content.find_elements(:tag_name, 'span')[1].text
+          if text.match(Company::VALID_PHONE_NUMBER_REGEX)
+            company.tel = text
+            break
+          end
+        end
+        convert_elements.each do |element|
+          if element.include?('【') ## 【が入ってるのはいらない
+            next
+          end
+          # メールアドレス
+          email = Company::check_email(element)
+          if email
+            company.email = email
+            next
+          end
+          ## 担当者
+          charge_employee = Company::check_charge_employee(element)
+          if charge_employee
+            company.charge_employee = charge_employee
+            next
+          end
+        end
+
         csv << [
           company.company_name,
           company.charge_employee,
@@ -115,9 +108,8 @@ namespace :scraping_prtimes do
           company.email,
           company.pritimes_url,
         ]
+        i += 1
       end
-      p csv
     end
-    p '終わり'
   end
 end
