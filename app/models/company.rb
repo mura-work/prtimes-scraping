@@ -26,18 +26,35 @@ class Company < ApplicationRecord
     "e-mail:",
     "メールアドレス：",
     "E-Mail ：",
+    "E-Mail: ",
     "Mail：",
   ]
   VALID_CHARGE_EMPLOYEE_TARGET= [
-    "担当：",
     "担当者名：",
+    "担当者名:",
+    "担当者名",
     "担当者：",
+    "担当者",
     "広報：",
     "広報 ",
+    "担当：",
+    "担当:",
     "担　当：",
-    "担当者",
     "担当",
   ]
+
+  CONST_CATEGORY = {
+    technology: "テクノロジー",
+    mobile: "モバイル",
+    app: "アプリ",
+    entertainment: "エンタメ",
+    beauty: "ビューティー",
+    fashion: "ファッション",
+    lifestyle: "ライフスタイル",
+    business: "ビジネス",
+    gourmet: "グルメ",
+    sports: "スポーツ",
+  }
 
   class << self
     def check_charge_employee(target)

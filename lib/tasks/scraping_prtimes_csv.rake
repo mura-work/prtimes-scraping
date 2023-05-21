@@ -1,6 +1,7 @@
 require 'json'
 require 'csv'
 require 'selenium-webdriver'
+require "google_drive"
 
 namespace :scraping_prtimes do
   desc 'prtimesのスクレイピング'
@@ -26,13 +27,14 @@ namespace :scraping_prtimes do
 
 
     ## スクレイピングする対象のカテゴリを開く
-    target_url = PR_TIMES_URL + '/technology/'
+    category = "technology"
+    target_url = PR_TIMES_URL + "/" + category + "/"
     driver.get(target_url)
     sleep(rand(1..3))
 
 
     ## 取得するデータ件数を代入
-    get_count = 40 ## 取得件数
+    get_count = 2000 ## 取得件数
     click_more_button_count = get_count / 40 ## もっと見るボタンを押す回数
 
     ## もっと見るボタンを押してリンクを取得
@@ -48,11 +50,71 @@ namespace :scraping_prtimes do
       sleep(rand(1..3))
     end
 
-    i = 0
     today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
 
+    ## スプレッドシートを取得
+    session = GoogleDrive::Session.from_config(".config.json")
+		sheet = session.spreadsheet_by_key("1LNGQQ1zbO7Iph8QiTkw1UdYVmCxpusAWopdbLbr8FzU").worksheets[0]
+
+    ## 最終行を取得
+    i = 2
+    while true do
+      ## 会社名が書かれていなかったら最終行なのでwhileを抜ける
+			data = sheet[i, 1]
+			if data.blank?
+				break
+			end
+
+      ## 連絡禁止か初回アポ済にデータが入っているかチェック データが入っていればDBのデータを書き換える
+      ## データがなかった場合、データを保存する
+      ## 連絡禁止
+      if sheet[i, 7].present?
+        target_data = Company.find_by(company_name: sheet[i, 1], email: sheet[i, 4])
+        if target_data.present?
+          if !target_data.is_blocked_company
+            target_data.update(is_blocked_company: true)
+          end
+        else
+          company =Company.new(
+            company_name: sheet[i, 1],
+            charge_employee: sheet[i, 2],
+            tel: sheet[i, 3],
+            email: sheet[i, 4],
+            category: sheet[i, 5],
+            pritimes_url: sheet[i, 6],
+            is_blocked_company: true
+          )
+          company.save
+        end
+      end
+
+      ## 初回アポ済
+      if sheet[i, 8].present?
+        target_data = Company.find_by(company_name: sheet[i, 1], email: sheet[i, 4])
+        if target_data.present?
+          if !target_data.is_client
+            target_data.update(is_client: true)
+          end
+        else
+          company = Company.new(
+            company_name: sheet[i, 1],
+            charge_employee: sheet[i, 2],
+            tel: sheet[i, 3],
+            email: sheet[i, 4],
+            category: sheet[i, 5],
+            pritimes_url: sheet[i, 6],
+            is_blocked_company: true
+          )
+          company.save
+        end
+      end
+			i += 1
+		end
+
+    last_row = i ## 最終行を変数に代入
+
     CSV.open("prtimes-scrapng #{today}.csv","w", :encoding => "utf-8") do |csv|
-      csv << ["会社名", "担当者", "電話番号", "メールアドレス", "prtimesのURL"]
+      csv << ["会社名", "担当者", "電話番号", "メールアドレス", "カテゴリ", "prtimesのURL"]
       article_links.each do |link|
         sleep(rand(1..3))
         driver.get(link) ## 各記事に遷移
@@ -65,7 +127,6 @@ namespace :scraping_prtimes do
         rescue => exception
           p exception
           p link
-          i += 1
           next
         end
         if convert_elements.size < 1
@@ -101,14 +162,42 @@ namespace :scraping_prtimes do
           end
         end
 
+        ## 会社名・メールアドレスがなければ保存しない
+        if company.company_name.blank? || company.email.blank?
+          next
+        end
+
+        ## 既に同一の会社名・メールアドレスのデータがあれば保存しない
+        if Company.find_by(company_name: company.company_name, email: company.email).present?
+          next
+        end
+
+        ## カテゴリ
+        company.category = Company::CONST_CATEGORY[category.to_sym]
+
+        ## CSVファイルに出力
         csv << [
           company.company_name,
           company.charge_employee,
           company.tel,
           company.email,
+          company.category,
           company.pritimes_url,
         ]
-        i += 1
+
+        ## 最終行に追加
+        sheet[last_row, 1] = company.company_name
+        sheet[last_row, 2] = company.charge_employee
+        sheet[last_row, 3] = company.tel
+        sheet[last_row, 4] = company.email
+        sheet[last_row, 5] = company.category
+        sheet[last_row, 6] = company.pritimes_url
+        sheet.save
+
+        ## DBに保存
+        company.save
+
+        last_row += 1
       end
     end
   end

@@ -20,6 +20,9 @@ ActiveRecord::Schema.define(version: 2022_06_12_092219) do
     t.string "company_site", limit: 190, default: ""
     t.string "pritimes_url", limit: 190, default: ""
     t.string "charge_employee", limit: 190, default: ""
+    t.string "category", limit: 190, default: ""
+    t.boolean "is_client", default: false
+    t.boolean "is_blocked_company", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
