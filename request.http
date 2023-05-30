@@ -1,0 +1,25 @@
+
+## ブラウザで以下のURLを開き、テストアプリの認証を行う
+https://accounts.google.com/o/oauth2/v2/auth
+?scope=https://www.googleapis.com/auth/drive
+&access_type=offline
+&redirect_uri=http://localhost:8080
+&client_id=226990895058-fqbm4fobb82bcqpacns54jh7im1s4uab.apps.googleusercontent.com
+&response_type=code
+
+## 認証後、「このサイトにはアクセスできません」となるので、URLをコピーしてどこかにペーストする
+## そのURLの中から、codeの部分を抜き出す
+
+## 上記で抜き出したcodeを下記のパラメータの部分に入れる
+## codeをパラメータに入れたら下記をターミナルで実行
+curl -d client_id='226990895058-fqbm4fobb82bcqpacns54jh7im1s4uab.apps.googleusercontent.com' -d client_secret='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' -d redirect_uri='http://localhost:8080' -d grant_type='authorization_code' -d code='4/0AbUR2VOSWxrJtxo9ss_9Si0RPV0tWacau717TvuBdkht4loY8UJ-s59jxT3Vyvqqvyz2Kg' https://accounts.google.com/o/oauth2/token
+
+## 下記のようなレスポンスが帰ってくるので、refresh_tokenの部分を.config.jsonのrefresh_tokenに入れる
+{
+  "access_token": "ya29.a0AWY7Ckn5GgiTY-jXaTaRtOkmjxIJGsq8HRsNLhSDEYlRzRyzb7wQS991hDVm5gkYH7mTn-0UO0ibXEGZ3TFTUZb90E3A-uemgMvOYj51rkKLtBb_d0hlhLfdXGNS1jfwg2cOFZfn3k5-334Ct8MXmTOOe6D6aCgYKAcsSARESFQG1tDrp7F6zB07Kf2ypep5rs6LoLw0163",
+  "expires_in": 3599,
+  "refresh_token": "1//0e442gTh_tPHACgYIARAAGA4SNwF-L9Ir2bOndXaLwQGfYW9vcCd9qmtDZFtt904Rtj4bMbtkca0oQiiQ7uGLmqS4zKGpMcefQSs",
+  "scope": "https://www.googleapis.com/auth/spreadsheets.readonly",
+  "token_type": "Bearer"
+}
+
