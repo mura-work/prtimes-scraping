@@ -10,8 +10,6 @@ namespace :scraping_prtimes do
     PR_TIMES_URL = 'https://prtimes.jp'
     PR_TIMES_LOGIN_URL = 'https://prtimes.jp/main/html/medialogin'
 
-    article_links = []
-
     ## ログイン処理
     driver.get(PR_TIMES_LOGIN_URL)
     sleep(rand(1..3))
@@ -37,6 +35,7 @@ namespace :scraping_prtimes do
     get_count = 2000 ## 取得件数
     click_more_button_count = get_count / 40 ## もっと見るボタンを押す回数
 
+    article_links = []
     ## もっと見るボタンを押してリンクを取得
     j = 0
     click_more_button_count.times do
@@ -49,8 +48,6 @@ namespace :scraping_prtimes do
       j += 40
       sleep(rand(1..3))
     end
-
-    today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
 
     ## スプレッドシートを取得
     session = GoogleDrive::Session.from_config(".config.json")
@@ -113,6 +110,7 @@ namespace :scraping_prtimes do
 
     last_row = i ## 最終行を変数に代入
 
+    today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
     CSV.open("prtimes-scrapng #{today}.csv","w", :encoding => "utf-8") do |csv|
       csv << ["会社名", "担当者", "電話番号", "メールアドレス", "カテゴリ", "prtimesのURL", "日時"]
       article_links.each do |link|
