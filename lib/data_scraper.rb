@@ -7,16 +7,16 @@ class DataScraper
 	PR_TIMES_URL = 'https://prtimes.jp'
   PR_TIMES_LOGIN_URL = 'https://prtimes.jp/main/html/medialogin'
 	URL_CATEGORIES = [
+		'technology',
+		'mobile',
+		'app',
+		'entertainment',
+		'beauty',
+		'fashion',
+		'lifestyle',
+		'business',
+		'gourmet',
 		'sports',
-		# 'technology',
-		# 'mobile',
-		# 'app',
-		# 'entertainment',
-		# 'beauty',
-		# 'fashion',
-		# 'lifestyle',
-		# 'business',
-		# 'gourmet',
 	]
 
 	## コンストラクタ
@@ -115,35 +115,17 @@ class DataScraper
 					end
 				end
 
+				## メールアドレスの取得
 				email_pattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/
 				matches = target_element_text.match(email_pattern)
 				email = matches[0] if matches
+				company.email = email
 
+				## 担当者
 				convert_elements.each do |element|
-					## 上の正規表現でメールアドレスが取得できなければ、文字列を一つずつ比較していって探す
-					if !email
-						if element.include?('【') ## 【が入ってるのはいらない
-							next
-						end
-						# メールアドレス
-						email = Company::check_email(element)
-					end
-
-					## 正規表現もしくは文字列の比較で取得できれば代入
-					if email && company.email.blank?
-						company.email = email
-						next
-					end
-
-					## 担当者
 					charge_employee = Company::check_charge_employee(element)
-					if charge_employee && company.charge_employee.blank?
+					if charge_employee
 						company.charge_employee = charge_employee
-						next
-					end
-
-					## メールアドレスも担当者も取得したらループを抜ける
-					if email && charge_employee
 						break
 					end
 				end
