@@ -4,7 +4,6 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '2.7.6'
 
 gem 'rails', '~> 6.1.5', '>= 6.1.5.1'
-gem 'sqlite3', '~> 1.4'
 gem 'puma', '~> 5.0'
 gem 'sass-rails', '>= 6'
 gem 'webpacker', '~> 5.0'
@@ -16,6 +15,7 @@ gem 'jbuilder', '~> 2.7'
 gem 'bootsnap', '>= 1.4.4', require: false
 
 group :development, :test do
+  gem 'sqlite3', '~> 1.4'
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails', '~> 5.0.0'
   gem 'factory_bot_rails'
@@ -34,6 +34,10 @@ group :test do
   gem 'webdrivers'
 end
 
+group :production do
+  gem 'mysql2'
+end
+
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 ## スクレイピングのためグローバルに移動
@@ -42,3 +46,5 @@ gem 'activerecord-import'
 gem 'dotenv-rails'
 
 gem 'google_drive'
+gem 'unicorn'
+gem 'whenever'
