@@ -27,7 +27,7 @@ set :environment, rails_env # 環境を設定
 
 job_type :rake, "export PATH=\"$HOME/.rbenv/bin:$PATH\"; eval \"$(rbenv init -)\"; cd :path && RAILS_ENV=:environment bundle exec rake :task :output"
 
-every 3.minute do # 1日1回実行
+every 1.days, at: '1:00 am' do # 1日1回実行
   # rake "import_movies:popular_movies"
-  rake "test_connect_spreadsheet:test"
+  rake "scraping_latest_data:sheet"
 end
