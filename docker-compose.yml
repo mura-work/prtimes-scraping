@@ -1,10 +1,11 @@
 version: '3.9'
 services:
   web:
+    platform: linux/x86_64
     build:
       context: .
       dockerfile: Dockerfile
-    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rake s -p 3000 -b '0.0.0.0' -e production"
+    command: /bin/sh -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0' -e production"
     volumes:
       - .:/prtimes-scraping
     ports:
@@ -14,14 +15,14 @@ services:
     stdin_open: true
     tty: true
   db:
-    image: mysql:5.7
+    image: mysql:5.6
     platform: linux/amd64
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
     volumes:
       - db-volume:/var/lib/mysql
     environment:
-      POSTGRES_PASSWORD: password
-      TZ: "Asia/Tokyo"
+      MYSQL_ROOT_PASSWORD: password_000
+      MYSQL_DATABASE: root
     ports:
       - "3306:3306"
 volumes:
