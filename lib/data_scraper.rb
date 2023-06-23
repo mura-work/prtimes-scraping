@@ -21,7 +21,13 @@ class DataScraper
 
 	## コンストラクタ
 	def initialize()
-		driver = Selenium::WebDriver.for :chrome
+		options = Selenium::WebDriver::Chrome::Options.new
+
+		# 下記オプションをつけないと Docker 上で動かない。
+		options.add_argument('--headless')
+		options.add_argument('--no-sandbox')
+		options.add_argument('--disable-dev-shm-usage')
+		driver = Selenium::WebDriver.for :chrome, options: options
 		@driver = driver
 	end
 
