@@ -12,6 +12,7 @@ class CreateCompanies < ActiveRecord::Migration[6.1]
       t.string :category, :default => "", limit: 190
       t.boolean :is_client, :default => false
       t.boolean :is_blocked_company, :default => false
+      t.datetime :insert_date_time
       t.timestamps
     end
   end
