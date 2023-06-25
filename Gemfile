@@ -31,7 +31,6 @@ end
 
 group :test do
   gem 'capybara', '>= 3.26'
-  gem 'webdrivers'
 end
 
 group :production do
@@ -42,6 +41,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 ## スクレイピングのためグローバルに移動
 gem 'selenium-webdriver'
+gem 'webdrivers'
+
 gem 'activerecord-import'
 gem 'dotenv-rails'
 

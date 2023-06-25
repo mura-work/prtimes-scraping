@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 2022_06_12_092219) do
     t.string "category", limit: 190, default: ""
     t.boolean "is_client", default: false
     t.boolean "is_blocked_company", default: false
+    t.datetime "insert_date_time"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

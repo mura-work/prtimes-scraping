@@ -1,9 +1,10 @@
 require 'csv'
 require 'json'
+require "google_drive"
 
 namespace :output_csv do
-	desc 'CSVファイルにエクスポート'
-	task export: :environment do
+	desc 'DBのデータをCSVファイルにエクスポート'
+	task data: :environment do
 		today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
 		CSV.open("output-company-data #{today}.csv","w", :encoding => "utf-8") do |csv|
 			csv << ["会社名", "担当者", "電話番号", "メールアドレス", "カテゴリ", "prtimesのURL", "日時", "連絡禁止", "初回アポ済み"]
@@ -20,6 +21,36 @@ namespace :output_csv do
 					company.is_blocked_company ? "○" : "",
 					company.is_client ? "○" : ""
 				]
+			end
+		end
+	end
+
+	desc 'スプレッドシートのデータをCSVファイルにエクスポート'
+	task sheet: :environment do
+		today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
+		CSV.open("output-company-data #{today}.csv","w", :encoding => "utf-8") do |csv|
+			csv << ["会社名", "担当者", "電話番号", "メールアドレス", "カテゴリ", "prtimesのURL", "日時", "連絡禁止", "初回アポ済み"]
+
+			session = GoogleDrive::Session.from_config(".config.json")
+			sheet = session.spreadsheet_by_key("1LNGQQ1zbO7Iph8QiTkw1UdYVmCxpusAWopdbLbr8FzU").worksheets[0]
+
+			i = 2
+			while true do
+				if sheet[i, 1].blank?
+					break
+				end
+				csv << [
+					sheet[i, 1],
+					sheet[i, 2],
+					sheet[i, 3],
+					sheet[i, 4],
+					sheet[i, 5],
+					sheet[i, 6],
+					sheet[i, 7],
+					sheet[i, 8].blank? ? "" : "○",
+					sheet[i, 9].blank? ? "" : "○",
+				]
+				i += 1
 			end
 		end
 	end
