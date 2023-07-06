@@ -16,6 +16,6 @@ job_type :rake, "export PATH=\"$HOME/.rbenv/bin:$PATH\"; eval \"$(rbenv init -)\
 #   rake "test_connect_spreadsheet:test"
 # end
 
-every 1.days, at: '1:00 am' do # 1日1回実行
+every 1.days, at: '0:00 am' do # 1日1回実行
   rake "scraping_latest_data:sheet"
 end

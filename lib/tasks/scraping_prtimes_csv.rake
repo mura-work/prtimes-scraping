@@ -65,8 +65,8 @@ namespace :scraping_prtimes do
       ## 連絡禁止か初回アポ済にデータが入っているかチェック データが入っていればDBのデータを書き換える
       ## データがなかった場合、データを保存する
       ## 連絡禁止
-      if sheet[i, 8].present?
-        target_data = Company.find_by(company_name: sheet[i, 1], email: sheet[i, 4])
+      if sheet[i, 7].present?
+        target_data = Company.find_by(company_name: sheet[i, 1], email: sheet[i, 3])
         if target_data.present?
           if !target_data.is_blocked_company
             target_data.update(is_blocked_company: true)
@@ -74,11 +74,11 @@ namespace :scraping_prtimes do
         else
           company =Company.new(
             company_name: sheet[i, 1],
-            charge_employee: sheet[i, 2],
-            tel: sheet[i, 3],
-            email: sheet[i, 4],
+            pritimes_url: sheet[i, 2],
+            email: sheet[i, 3],
+            charge_employee: sheet[i, 4],
             category: sheet[i, 5],
-            pritimes_url: sheet[i, 6],
+            insert_date_time: sheet[i, 6],
             is_blocked_company: true
           )
           company.save
@@ -86,8 +86,8 @@ namespace :scraping_prtimes do
       end
 
       ## 初回アポ済
-      if sheet[i, 9].present?
-        target_data = Company.find_by(company_name: sheet[i, 1], email: sheet[i, 4])
+      if sheet[i, 8].present?
+        target_data = Company.find_by(company_name: sheet[i, 1], email: sheet[i, 3])
         if target_data.present?
           if !target_data.is_client
             target_data.update(is_client: true)
@@ -95,12 +95,12 @@ namespace :scraping_prtimes do
         else
           company = Company.new(
             company_name: sheet[i, 1],
-            charge_employee: sheet[i, 2],
-            tel: sheet[i, 3],
-            email: sheet[i, 4],
+            pritimes_url: sheet[i, 2],
+            email: sheet[i, 3],
+            charge_employee: sheet[i, 4],
             category: sheet[i, 5],
-            pritimes_url: sheet[i, 6],
-            is_blocked_company: true
+            insert_date_time: sheet[i, 6],
+            is_client: true
           )
           company.save
         end
@@ -112,7 +112,7 @@ namespace :scraping_prtimes do
 
     today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
     CSV.open("prtimes-scrapng #{today}.csv","w", :encoding => "utf-8") do |csv|
-      csv << ["会社名", "担当者", "電話番号", "メールアドレス", "カテゴリ", "prtimesのURL", "日時"]
+      csv << ["会社名", "prtimesのURL", "メールアドレス", "担当者", "カテゴリ", "日時"]
       article_links.each do |link|
         sleep(rand(1..3))
         driver.get(link) ## 各記事に遷移
@@ -176,22 +176,20 @@ namespace :scraping_prtimes do
         ## CSVファイルに出力
         csv << [
           company.company_name,
-          company.charge_employee,
-          company.tel,
-          company.email,
-          company.category,
           company.pritimes_url,
+          company.email,
+          company.charge_employee,
+          company.category,
           Time.new.strftime("%Y-%m-%d %H:%M:%S")
         ]
 
         ## 最終行に追加
         sheet[last_row, 1] = company.company_name
-        sheet[last_row, 2] = company.charge_employee
-        sheet[last_row, 3] = company.tel
-        sheet[last_row, 4] = company.email
+        sheet[last_row, 2] = company.pritimes_url
+        sheet[last_row, 3] = company.email
+        sheet[last_row, 4] = company.charge_employee
         sheet[last_row, 5] = company.category
-        sheet[last_row, 6] = company.pritimes_url
-        sheet[last_row, 7] = Time.new.strftime("%Y-%m-%d %H:%M:%S")
+        sheet[last_row, 6] = Time.new.strftime("%Y-%m-%d %H:%M:%S")
         sheet.save
 
         ## DBに保存
