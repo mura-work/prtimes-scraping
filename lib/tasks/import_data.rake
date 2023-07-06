@@ -13,14 +13,13 @@ namespace :import_data do
 			end
 			company = Company.new
 			company.company_name = row[0]
-			company.charge_employee = row[1]
-			company.tel = row[2]
-			company.email = row[3]
+			company.pritimes_url = row[1]
+			company.email = row[2]
+			company.charge_employee = row[3]
 			company.category = row[4]
-			company.pritimes_url = row[5]
-			company.insert_date_time = row[6]
-			company.is_blocked_company = row[7].present?
-			company.is_client = row[8].present?
+			company.insert_date_time = row[5]
+			company.is_blocked_company = row[6].present?
+			company.is_client = row[7].present?
 			company.save
 			i += 1
 		end
