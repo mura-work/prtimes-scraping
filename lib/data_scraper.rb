@@ -123,6 +123,10 @@ class DataScraper
 					end
 
 					## メールアドレスの取得
+					### 特定のメールアドレスの末尾であれば保存しない
+					if Company::EMAIL_END_TARGET_EXCLUSION.find {|target| target_element_text.end_with?(target) }
+						next
+					end
 					email_pattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/
 					matches = target_element_text.match(email_pattern)
 					email = matches[0] if matches

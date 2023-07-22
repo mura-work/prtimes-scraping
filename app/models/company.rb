@@ -56,6 +56,11 @@ class Company < ApplicationRecord
     sports: "スポーツ",
   }
 
+  ## 除外するメールアドレスの末尾
+  EMAIL_END_TARGET_EXCLUSION = [
+    '@vectorinc.co.jp'
+  ]
+
   class << self
     def check_charge_employee(target)
       target_charge_employee = Company::VALID_CHARGE_EMPLOYEE_TARGET.find { |v| target.include?(v)}
