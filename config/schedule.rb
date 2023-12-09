@@ -12,7 +12,7 @@ ENV.each { |k, v| env(k, v) }
 job_type :rake, "export PATH=\"$HOME/.rbenv/bin:$PATH\"; eval \"$(rbenv init -)\"; cd :path && RAILS_ENV=:environment bundle exec rake :task :output"
 
 # バッチ処理の実行テスト
-# every 2.minute do
+# every 1.minute do
 #   rake "test_connect_spreadsheet:test"
 # end
 

@@ -91,54 +91,47 @@ class DataScraper
 					sleep(rand(1..3))
 					@driver.get(link) ## 各記事に遷移
 					sleep(rand(1..3))
-					target_element_text = ''
-					convert_elements = []
+					target_text = ''
 					begin
-						target_element_text = @driver.find_element(:id, 'media-only-information').text
-						convert_elements = target_element_text.split("\n").compact_blank ## 配列形式に直す
+						article_element = @driver.find_elements(:css, 'article > div')
+						target_text = article_element.last.find_elements(:css, 'div p').last.text
+
 					rescue => exception
 						p exception
 						p link
 						next
 					end
-					if convert_elements.size < 1
-						puts 'next'
-						puts convert_elements
+
+					if !target_text
+						puts `要素が取得できませんでした：#{link}`
 						next
 					end
 
 					company = Company.new(pritimes_url: link)
 
-					## 会社名 右上のサイドバーカラ取得
-					company.company_name = @driver.find_element(:xpath, '//*[@id="sidebar"]/aside[1]/div[1]').text
+					## 会社名 右上のサイドバーから取得
+					company.company_name = @driver.find_element(:css, 'aside > section > div a').text
 
 					## 電話番号
-					right_content_list = @driver.find_elements(:xpath, '//*[@id="containerInformationCompany"]/li')
-					right_content_list.each do |content|
-						text = content.find_elements(:tag_name, 'span')[1].text
-						if text.match(Company::VALID_PHONE_NUMBER_REGEX)
-							company.tel = text
-							break
-						end
+					tel = target_text.match(Company::VALID_PHONE_NUMBER_REGEX)
+					if tel
+						company.tel = tel[0]
 					end
 
 					## メールアドレスの取得
 					### 特定のメールアドレスの末尾であれば保存しない
-					if Company::EMAIL_END_TARGET_EXCLUSION.find {|target| target_element_text.end_with?(target) }
+					## emailが取得できなかったor除外するメールアドレスと一致していたらデータを保存せず次の記事に移動する
+					email = target_text.match(Company::VALID_EMAIL_REGEX)
+					if !email || Company::EMAIL_END_TARGET_EXCLUSION.find {|target| email[0].end_with?(target) }
 						next
 					end
-					email_pattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b/
-					matches = target_element_text.match(email_pattern)
-					email = matches[0] if matches
-					company.email = email
+					company.email = email[0]
 
 					## 担当者
-					convert_elements.each do |element|
-						charge_employee = Company::check_charge_employee(element)
-						if charge_employee
-							company.charge_employee = charge_employee
-							break
-						end
+					charge_employee_match = target_text.match(Company::VALID_CHARGE_EMPLOYEE_TARGET)
+					charge_employee = charge_employee_match && charge_employee_match[1].strip
+					if charge_employee
+						company.charge_employee = charge_employee
 					end
 
 					## 会社名・メールアドレスがなければ保存しない

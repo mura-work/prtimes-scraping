@@ -52,4 +52,28 @@ namespace :output_csv do
 			end
 		end
 	end
+
+	desc 'DBのデータをjson形式で出力'
+	task json: :environment do
+		today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
+		File.open("output-company-data #{today}.json","w", :encoding => "utf-8") do |file|
+
+			result = []
+			Company.all.each do |company|
+				company_data = {
+					name: company.company_name,
+					pritimes_url: company.pritimes_url,
+					email: company.email,
+					charge_employee: company.charge_employee,
+					category: company.category,
+					created_at: company.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+					is_blocked_company: company.is_blocked_company ? "○" : "",
+					is_client: company.is_client ? "○" : ""
+				}
+				dump_data = JSON.dump(company_data)
+				result.push(dump_data)
+			end
+			file << result
+		end
+	end
 end
