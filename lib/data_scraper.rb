@@ -93,9 +93,11 @@ class DataScraper
 					sleep(rand(1..3))
 					target_text = ''
 					begin
-						article_element = @driver.find_elements(:css, 'article > div')
-						target_text = article_element.last.find_elements(:css, 'div p').last.text
-
+						article_element = @driver.find_element(:css, '#press-release-body + *')
+						if !article_element
+							next
+						end
+						target_text = article_element.text
 					rescue => exception
 						p exception
 						p link
@@ -109,8 +111,9 @@ class DataScraper
 
 					company = Company.new(pritimes_url: link)
 
-					## 会社名 右上のサイドバーから取得
-					company.company_name = @driver.find_element(:css, 'aside > section > div a').text
+					## 会社名 articleタグの一番最初のpタグから取得
+					## DOM構造が変わったら取れなくなるので微妙ではある
+					company.company_name = @driver.find_element(:css, '#js-heatmap-subject-area p').text
 
 					## 電話番号
 					tel = target_text.match(Company::VALID_PHONE_NUMBER_REGEX)
