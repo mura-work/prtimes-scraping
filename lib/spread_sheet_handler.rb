@@ -22,7 +22,7 @@ class SpreadSheetHandler
       ## 連絡禁止か初回アポ済にデータが入っているかチェック データが入っていればDBのデータを書き換える
       ## データがなかった場合、データを保存する
       ## 連絡禁止
-      if @sheet[@last_row, 7].present?
+      if @sheet[@last_row, 8].present?
         target_data = Company.find_by(company_name: @sheet[@last_row, 1], email: @sheet[@last_row, 3])
         if target_data.present?
           if !target_data.is_blocked_company
@@ -33,9 +33,10 @@ class SpreadSheetHandler
             company_name: @sheet[@last_row, 1],
             pritimes_url: @sheet[@last_row, 2],
             email: @sheet[@last_row, 3],
-            charge_employee: @sheet[@last_row, 4],
-            category: @sheet[@last_row, 5],
-            insert_date_time: @sheet[@last_row, 6],
+            tel: @sheet[@last_row, 4],
+            charge_employee: @sheet[@last_row, 5],
+            category: @sheet[@last_row, 6],
+            insert_date_time: @sheet[@last_row, 7],
             is_blocked_company: true
           )
           company.save
@@ -43,7 +44,7 @@ class SpreadSheetHandler
       end
 
       ## 初回アポ済
-      if @sheet[@last_row, 8].present?
+      if @sheet[@last_row, 9].present?
         target_data = Company.find_by(company_name: @sheet[@last_row, 1], email: @sheet[@last_row, 3])
         if target_data.present?
           if !target_data.is_client
@@ -54,9 +55,10 @@ class SpreadSheetHandler
             company_name: @sheet[@last_row, 1],
             pritimes_url: @sheet[@last_row, 2],
             email: @sheet[@last_row, 3],
-            charge_employee: @sheet[@last_row, 4],
-            category: @sheet[@last_row, 5],
-            insert_date_time: @sheet[@last_row, 6],
+            tel: @sheet[@last_row, 4],
+            charge_employee: @sheet[@last_row, 5],
+            category: @sheet[@last_row, 6],
+            insert_date_time: @sheet[@last_row, 7],
             is_client: true
           )
           company.save
@@ -71,9 +73,10 @@ class SpreadSheetHandler
     @sheet[@last_row, 1] = company.company_name
     @sheet[@last_row, 2] = company.pritimes_url
     @sheet[@last_row, 3] = company.email
-    @sheet[@last_row, 4] = company.charge_employee
-    @sheet[@last_row, 5] = company.category
-    @sheet[@last_row, 6] = Time.new.strftime("%Y-%m-%d %H:%M:%S")
+    @sheet[@last_row, 4] = company.tel
+    @sheet[@last_row, 5] = company.charge_employee
+    @sheet[@last_row, 6] = company.category
+    @sheet[@last_row, 7] = Time.new.strftime("%Y-%m-%d %H:%M:%S")
     @sheet.save
   end
 end

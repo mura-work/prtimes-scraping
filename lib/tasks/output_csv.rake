@@ -7,13 +7,14 @@ namespace :output_csv do
 	task data: :environment do
 		today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
 		CSV.open("output-company-data #{today}.csv","w", :encoding => "utf-8") do |csv|
-			csv << ["会社名", "prtimesのURL", "メールアドレス", "担当者", "カテゴリ", "日時", "連絡禁止", "初回アポ済み"]
+			csv << ["会社名", "prtimesのURL", "メールアドレス", "電話番号", "担当者", "カテゴリ", "日時", "連絡禁止", "初回アポ済み"]
 
 			Company.all.each do |company|
 				csv << [
 					company.company_name,
 					company.pritimes_url,
 					company.email,
+					company.tel,
 					company.charge_employee,
 					company.category,
 					company.created_at.strftime("%Y-%m-%d %H:%M:%S"),
@@ -28,7 +29,7 @@ namespace :output_csv do
 	task sheet: :environment do
 		today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
 		CSV.open("output-company-data #{today}.csv","w", :encoding => "utf-8") do |csv|
-			csv << ["会社名", "prtimesのURL", "メールアドレス", "担当者", "カテゴリ", "日時", "連絡禁止", "初回アポ済み"]
+			csv << ["会社名", "prtimesのURL", "メールアドレス", "電話番号", "担当者", "カテゴリ", "日時", "連絡禁止", "初回アポ済み"]
 
 			session = GoogleDrive::Session.from_config(".config.json")
 			sheet = session.spreadsheet_by_key("1LNGQQ1zbO7Iph8QiTkw1UdYVmCxpusAWopdbLbr8FzU").worksheets[0]
@@ -45,8 +46,9 @@ namespace :output_csv do
 					sheet[i, 4],
 					sheet[i, 5],
 					sheet[i, 6],
-					sheet[i, 7].blank? ? "" : "○",
+					sheet[i, 7],
 					sheet[i, 8].blank? ? "" : "○",
+					sheet[i, 9].blank? ? "" : "○",
 				]
 				i += 1
 			end
@@ -64,6 +66,32 @@ namespace :output_csv do
 					name: company.company_name,
 					pritimes_url: company.pritimes_url,
 					email: company.email,
+					tel: company.tel,
+					charge_employee: company.charge_employee,
+					category: company.category,
+					created_at: company.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+					is_blocked_company: company.is_blocked_company ? "○" : "",
+					is_client: company.is_client ? "○" : ""
+				}
+				dump_data = JSON.dump(company_data)
+				result.push(dump_data)
+			end
+			file << result
+		end
+	end
+
+	desc '電話番号の存在する会社のみを抽出してjson形式で出力'
+	task extracted_tel: :environment do
+		today = Time.new.strftime("%Y-%m-%d %H:%M:%S")
+		File.open("extracted-output-company-data #{today}.json","w", :encoding => "utf-8") do |file|
+
+			result = []
+			Company.where.not(tel: "").each do |company|
+				company_data = {
+					name: company.company_name,
+					pritimes_url: company.pritimes_url,
+					email: company.email,
+					tel: company.tel,
 					charge_employee: company.charge_employee,
 					category: company.category,
 					created_at: company.created_at.strftime("%Y-%m-%d %H:%M:%S"),
