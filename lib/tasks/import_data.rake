@@ -29,4 +29,37 @@ namespace :import_data do
 	task sheet: :environment do
 		puts 'sheet'
 	end
+
+	desc '電話番号をスプレッドシートに書き込む'
+	task insert_tel_number: :environment do
+		## シートの取得
+		session = GoogleDrive::Session.from_config(".config.json")
+		@sheet = session.spreadsheet_by_key("1LNGQQ1zbO7Iph8QiTkw1UdYVmCxpusAWopdbLbr8FzU").worksheets[1]
+		puts @sheet.title
+
+		def insert_sheet(company, last_row)
+			## 最終行に追加
+			@sheet[last_row, 1] = company["name"]
+			@sheet[last_row, 2] = company["pritimes_url"]
+			@sheet[last_row, 3] = company["email"]
+			@sheet[last_row, 4] = company["tel"]
+			@sheet[last_row, 5] = company["charge_employee"]
+			@sheet[last_row, 6] = company["category"]
+			@sheet[last_row, 7] = company["created_at"]
+			@sheet.save
+		end
+
+		## データの取得
+		json_data = File.read('output-company-data.json')
+    @target_data = JSON.parse(json_data)
+		last_row = 2
+		@target_data.each_with_index do |company, i|
+			target_row = last_row + i
+			insert_sheet(JSON.parse(company), target_row)
+			if target_row % 50 == 0
+				puts "sleep start #{target_row}"
+				puts "sleep end"
+			end
+		end
+	end
 end
