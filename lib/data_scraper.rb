@@ -113,7 +113,7 @@ class DataScraper
 
 					## 会社名 articleタグの一番最初のpタグから取得
 					## DOM構造が変わったら取れなくなるので微妙ではある
-					company.company_name = @driver.find_element(:css, '#js-heatmap-subject-area p').text
+					company.company_name = @driver.find_element(:css, '#js-heatmap-subject-area a p').text
 
 					## 電話番号
 					tel = target_text.match(Company::VALID_PHONE_NUMBER_REGEX)
