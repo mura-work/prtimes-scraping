@@ -14,5 +14,6 @@ namespace :scraping_latest_data do
 		spread_sheet_handler = SpreadSheetHandler.new
 		spread_sheet_handler.set_last_row
 		data_scraper.execute_scraping(spread_sheet_handler)
+		puts "--------------#{today} スクレイピング終了---------------"
 	end
 end
